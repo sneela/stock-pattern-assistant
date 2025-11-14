@@ -1,4 +1,4 @@
-from __future__ import annotations
+ï»¿from __future__ import annotations
 
 from typing import Dict, List
 
@@ -36,7 +36,7 @@ def build_run_explanation_prompt(run: Dict, events: List[Dict]) -> str:
         events_section = "- No public events were linked to this run."
 
     instructions = (
-        "You are a neutral financial historian. Summarize the historical run in 2–3 sentences.\n"
+        "You are a neutral financial historian. Summarize the historical run in 2-3 sentences.\n"
         "Mention public events only as possible context, not guaranteed causes.\n"
         "Do not provide predictions, outlook statements, or buy/sell/hold language.\n"
         "Use phrases like 'during this period', 'historically', or 'the stock experienced...'."
