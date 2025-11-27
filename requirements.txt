@@ -4,3 +4,4 @@ yfinance
 matplotlib
 python-dotenv
 openai
+streamlit

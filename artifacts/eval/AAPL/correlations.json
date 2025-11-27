@@ -1,0 +1,54 @@
+{
+  "2": [],
+  "3": [],
+  "4": [],
+  "5": [
+    {
+      "date": "2024-09-10T00:00:00",
+      "headline": "Apple unveils new iPhone lineup at fall event",
+      "source": "Newswire",
+      "url": null,
+      "summary": null,
+      "ticker": "AAPL",
+      "days_from_run_start": 1
+    }
+  ],
+  "6": [
+    {
+      "date": "2024-09-10T00:00:00",
+      "headline": "Apple unveils new iPhone lineup at fall event",
+      "source": "Newswire",
+      "url": null,
+      "summary": null,
+      "ticker": "AAPL",
+      "days_from_run_start": 0
+    }
+  ],
+  "7": [
+    {
+      "date": "2024-09-10T00:00:00",
+      "headline": "Apple unveils new iPhone lineup at fall event",
+      "source": "Newswire",
+      "url": null,
+      "summary": null,
+      "ticker": "AAPL",
+      "days_from_run_start": -1
+    }
+  ],
+  "8": [],
+  "9": [],
+  "10": [
+    {
+      "date": "2024-09-20T00:00:00",
+      "headline": "Early reviews highlight camera upgrades",
+      "source": "Blog",
+      "url": null,
+      "summary": null,
+      "ticker": "AAPL",
+      "days_from_run_start": 0
+    }
+  ],
+  "11": [],
+  "12": [],
+  "13": []
+}
