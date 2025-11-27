@@ -3,8 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 import pandas as pd
 import yfinance as yf
+import streamlit as st
 
 
+@st.cache_data(show_spinner=False)
 def fetch_daily_prices(
     ticker: str,
     start: str,

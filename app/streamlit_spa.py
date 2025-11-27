@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import datetime
 from datetime import date, timedelta
 from pathlib import Path
 import tempfile
@@ -21,6 +22,11 @@ from src.config_spa import SPA_MAX_EXPLAINED_RUNS_DEFAULT  # noqa: E402
 
 st.set_page_config(page_title="Stock Pattern Assistant (SPA)", layout="wide")
 st.title("Stock Pattern Assistant (SPA)")
+st.caption(
+    "Explainable stock run detection and pattern segmentation using historical OHLCV data. "
+    "SPA analyzes trends, breakouts, and reversals — purely as historical analysis, not trading advice."
+)
+st.markdown("---")
 
 
 @st.cache_data(show_spinner=False)
@@ -48,13 +54,31 @@ def cached_run_spa_for_single_ticker(
 
 
 def main() -> None:
-    today = date.today()
-    default_start = today - timedelta(days=60)
-
     with st.sidebar:
-        tickers_input = st.text_input("Tickers (comma-separated)", value="AAPL,NVDA")
-        start_date = st.date_input("Start Date", value=default_start)
-        end_date = st.date_input("End Date", value=today)
+        if st.button("Load example settings"):
+            st.session_state["tickers_input"] = "GME, AMC"
+            st.session_state["start_date"] = datetime.date(2021, 1, 1)
+            st.session_state["end_date"] = datetime.date(2021, 4, 30)
+
+        default_tickers = st.session_state.get("tickers_input", "AAPL,NVDA")
+        default_start = st.session_state.get("start_date", datetime.date.today() - datetime.timedelta(days=60))
+        default_end = st.session_state.get("end_date", datetime.date.today())
+
+        tickers_input = st.text_input(
+            "Tickers (comma-separated)",
+            value=default_tickers,
+            key="tickers_input",
+        )
+        start_date = st.date_input(
+            "Start date",
+            value=default_start,
+            key="start_date",
+        )
+        end_date = st.date_input(
+            "End date",
+            value=default_end,
+            key="end_date",
+        )
         window_days = st.number_input("Event correlation window (days)", min_value=0, max_value=10, value=2, step=1)
         fetch_events = st.checkbox("Fetch & correlate news/events", value=True)
         generate_explanations = st.checkbox("Generate explanations (if LLM configured)", value=False)
@@ -80,7 +104,7 @@ def main() -> None:
         tabs = st.tabs(tickers)
         for tab, tk in zip(tabs, tickers):
             with tab:
-                with st.spinner(f"Running SPA pipeline for {tk}..."):
+                with st.spinner("Analyzing runs..."):
                     result = cached_run_spa_for_single_ticker(
                         ticker=tk,
                         start=str(start_date),
@@ -120,7 +144,12 @@ def render_results_for_ticker(
     correlations = result["correlations"]
     explanations = result["explanations"]
     if result.get("explanation_error"):
-        st.warning(result["explanation_error"])
+        if "429" in result["explanation_error"] or "quota" in result["explanation_error"].lower():
+            st.warning("LLM returned 429: insufficient quota. Explanations are skipped.")
+        else:
+            st.warning(result["explanation_error"])
+    elif generate_explanations and not explanations:
+        st.warning("No explanations generated for the selected runs.")
 
     st.subheader("Summary")
     st.write(
@@ -146,16 +175,27 @@ def render_results_for_ticker(
                     output_path=tmpfile.name,
                 )
                 st.image(tmpfile.name, width="stretch", caption="Price with runs and events")
+                st.markdown("🟢 = Upward run  🔴 = Downward run")
+                with open(tmpfile.name, "rb") as f:
+                    st.download_button(
+                        label="Download chart as PNG",
+                        data=f.read(),
+                        file_name=f"{ticker}_price_with_runs.png",
+                        mime="image/png",
+                    )
         except Exception as exc:
             st.warning(f"Could not render chart: {exc}")
 
-    if fetch_events and events:
-        st.subheader("Events (normalized)")
-        events_df = pd.DataFrame(events)
-        st.dataframe(events_df)
+    if fetch_events:
+        if events:
+            st.subheader("Events (normalized)")
+            events_df = pd.DataFrame(events)
+            st.dataframe(events_df)
+        else:
+            st.info("No events found in the selected window.")
 
     if generate_explanations and explanations:
-        st.subheader("Explanations (historical-only)")
+        st.subheader("Run Explanations (historical analysis only)")
         for entry in explanations:
             header = f"Run {entry.get('run_id')} ({entry.get('start')} → {entry.get('end')})"
             with st.expander(header, expanded=False):
@@ -166,6 +206,9 @@ def render_results_for_ticker(
                     f"- Max drawdown: {entry.get('max_drawdown_pct')}"
                 )
                 st.markdown(entry.get("explanation") or "_No explanation generated_")
+        st.caption(
+            "SPA explains historical patterns only — not signals or financial advice."
+        )
 
     # Downloads
     st.subheader("Export")

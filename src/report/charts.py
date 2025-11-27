@@ -35,12 +35,14 @@ def plot_price_with_runs(
     ax.set_xlabel("Date")
     ax.set_ylabel("Price")
     ax.legend(loc="upper left")
-    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(True, linestyle="--", alpha=0.15, linewidth=0.5)
+    plt.setp(ax.get_xticklabels(), rotation=25, ha="right")
+    fig.subplots_adjust(left=0.08, right=0.98)
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
+    fig.savefig(output_path, dpi=200)
     plt.close(fig)
 
 
@@ -68,7 +70,7 @@ def plot_price_with_runs_and_events(
             end = pd.Timestamp(run["end"])
             direction = str(run["direction"]).lower()
             color = "#2ca02c" if direction == "up" else "#d62728"
-            ax.axvspan(start, end, color=color, alpha=0.15)
+            ax.axvspan(start, end, color=color, alpha=0.08)
 
     # Collect unique event dates for markers.
     event_dates = []
@@ -80,24 +82,23 @@ def plot_price_with_runs_and_events(
                     event_dates.append(date_val.normalize())
 
     if event_dates:
-        # Deduplicate and sort for deterministic markers.
         unique_dates = sorted({d for d in event_dates})
-        y_min, y_max = price_series.min(), price_series.max()
         for d in unique_dates:
-            ax.axvline(d, color="#1f77b4", linestyle="--", alpha=0.3)
-        # Place markers at price if available on that date.
+            ax.axvline(d, color="#1f77b4", linestyle="--", alpha=0.15, linewidth=0.75)
         for d in unique_dates:
             if d in price_series.index:
-                ax.scatter(d, price_series.loc[d], color="#1f77b4", s=20, zorder=3, label="_nolegend_")
+                ax.scatter(d, price_series.loc[d], color="#1f77b4", s=18, zorder=3, label="_nolegend_")
 
     ax.set_title("Price with Runs and Events")
     ax.set_xlabel("Date")
     ax.set_ylabel("Price")
     ax.legend(loc="upper left")
-    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(True, linestyle="--", alpha=0.15, linewidth=0.5)
+    plt.setp(ax.get_xticklabels(), rotation=25, ha="right")
+    fig.subplots_adjust(left=0.08, right=0.98)
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
+    fig.savefig(output_path, dpi=200)
     plt.close(fig)

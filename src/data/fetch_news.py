@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List
 
 import pandas as pd
+import streamlit as st
 
 # Deterministic sample headlines per ticker to avoid network dependencies.
 _SAMPLE_NEWS: Dict[str, List[Dict]] = {
@@ -26,6 +27,7 @@ _SAMPLE_NEWS: Dict[str, List[Dict]] = {
 }
 
 
+@st.cache_data(show_spinner=False)
 def fetch_news_for_ticker(ticker: str, start: str, end: str, max_items: int = 100) -> List[Dict]:
     """Return deterministic public-news items for a ticker within [start, end]."""
     start_ts = _parse_date(start)

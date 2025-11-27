@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
+import streamlit as st
+
 import pandas as pd
 
 
@@ -19,6 +21,7 @@ class PriceRun:
     max_drawdown_pct: float
 
 
+@st.cache_data(show_spinner=False)
 def detect_price_runs(df: pd.DataFrame, price_col: str = "close") -> pd.DataFrame:
     """Detect consecutive up or down runs within a price series."""
     if price_col not in df.columns:
